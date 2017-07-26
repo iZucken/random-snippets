@@ -9,7 +9,9 @@
 		numbers: document.getElementById('passgen-numbers'),
 		special: document.getElementById('passgen-special'),
 		generate: document.getElementById('passgen-generate'),
-		//toclip: document.getElementById('passgen-toclip')
+		//toclip: document.getElementById('passgen-toclip'),
+		options: document.getElementById('passgen-options'),
+		countGhost: document.getElementById('passgen-count-ghost'),
 	};
 	var dictionary = ''; // used to generate a password
 	/*
@@ -26,7 +28,10 @@
 		'0123456789',
 		'!@#$%^&()+-*/_=|~`\\'
 	];
-	var count = view.count.value;
+	var folded = true;
+	var count = 0;
+	var countMin = 4;
+	var countMax = 20;
 	var checksIndexes = [ // maps inputs to indexes
 		view.lowercase,
 		view.uppercase,
@@ -49,8 +54,12 @@
 		generate();
 	};
 	var recount = function ( event ) {
-		count = view.count.value;
-		bakeDictionary();
+		if ( count != view.count.value ) {
+			count = view.count.value;
+			bakeDictionary();
+			view.countGhost.innerText = count;
+			view.countGhost.style.left = ((count-countMin)/(countMax-countMin))*100 + "%";
+		}
 	};
 	var check = function ( event ) {
 		var target = event.target;
@@ -81,11 +90,18 @@
 		document.execCommand('copy');
 		view.text.select(false);
 	};
-	view.count.addEventListener( 'change', recount );
+	var options = function ( event ) {
+		folded = !folded;
+		view.container.classList.toggle("folded");
+	}
+	//view.count.addEventListener( 'change', recount );
+	view.count.addEventListener( 'mousemove', recount );
+	view.count.addEventListener( 'touchmove', recount );
 	view.lowercase.addEventListener( 'click', check );
 	view.uppercase.addEventListener( 'click', check );
 	view.numbers.addEventListener( 'click', check );
 	view.special.addEventListener( 'click', check );
 	view.generate.addEventListener( 'click', generate );
-	view.toclip.addEventListener( 'click', toclip );
+	//view.toclip.addEventListener( 'click', toclip );
+	view.options.addEventListener( 'click', options );
 //})();

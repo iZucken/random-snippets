@@ -12,28 +12,37 @@
 <div class="container">
     <div id="passgen-container" class="passgen folded">
         <div class="row pad-r-80">
-            <textarea id="passgen-text" type="text"></textarea>
+            <textarea id="passgen-text" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
             <div class="float-l mar-r-n-80">
-                <input type="number" value="4" min="4" max="20" id="passgen-count" class="noselect number">
-                <a id="passgen-generate" class="noselect button inv">
+                <!--<input type="number" value="4" min="4" max="20" id="passgen-count" class="noselect input number">-->
+                <a id="passgen-generate" class="noselect input button inv">
                     <i class="fa fa-refresh"></i>
+                </a>
+                <a id="passgen-options" class="noselect input button inv">
+                    <i class="fa fa-cog"></i>
                 </a>
             </div>
         </div>
-        <!--
-        <div class="row">
-            <div id="passgen-slider" class="slider-container">
-                <div id="passgen-count" class="slider">
-                    <input id="passgen-knob" class="knob" type="button" value="4">
+        <div class="row pad-r-100per">
+            <div class="noselect input range-ghost mar-r-n-100per">
+                <div id="passgen-count-ghost" class="knob">
+                    4
                 </div>
             </div>
+            <input id="passgen-count" class="noselect input range" type="range" min="4" max="20" step="1" value="4">
+            <!--
+            <div id="passgen-slider" class="slider-container">
+                <div id="passgen-count" class="slider">
+
+                </div>
+            </div>
+            -->
         </div>
-        -->
         <div class="row">
-            <a id="passgen-lowercase" class="noselect button col-4 on">a-z</a>
-            <a id="passgen-uppercase" class="noselect button col-4">A-Z</a>
-            <a id="passgen-numbers" class="noselect button col-4">0-9</a>
-            <a id="passgen-special" class="noselect button col-4">!</a>
+            <a id="passgen-lowercase" class="noselect input button col-4 on">a-z</a>
+            <a id="passgen-uppercase" class="noselect input button col-4">A-Z</a>
+            <a id="passgen-numbers" class="noselect input button col-4">0-9</a>
+            <a id="passgen-special" class="noselect input button col-4">!</a>
         </div>
     </div>
 </div>

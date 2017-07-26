@@ -17,26 +17,25 @@
 
 .container {
     widht: 100%;
-    padding: 5% 20%;
+    padding: 40px 20%;
 }
 
 .passgen {
     widht: 100%;
-    height: 80px;
+    height: 120px;
     transition: all 200ms ease-in-out;
     font-size: 20px;
     overflow: hidden;
-    /**/
-    border-radius: 10px;
+    /*border-radius: 10px;*/
     border: 1px solid rgba( 40, 50, 60, 0.5 );
     background: rgba( 100, 120, 140, 1 );
     box-shadow: rgba( 10, 15, 20, 0.5 ) 0px 4px 4px;
 }
-/*
+
 .passgen.folded {
     height: 40px;
 }
-*/
+
 .passgen .row {
     widht: 100%;
     height: 40px;
@@ -59,6 +58,14 @@
     margin-right: -80px;
 }
 
+.passgen .pad-r-100p {
+    padding-right: 100%;
+}
+
+.passgen .mar-r-n-100p {
+    margin-right: -100%;
+}
+
 .passgen textarea {
     float: left;
     min-width: 100%;
@@ -68,9 +75,17 @@
     height: 100%;
     max-height: 100%;
     font-size: 20px;
-    padding: 10px;
+    line-height: 40px;
+    padding: 0em 0.25em;
     font-family: monospace;
     overflow: hidden;
+}
+
+.passgen .input {
+    color: white;
+    transition: all 100ms ease-in-out;
+    text-shadow: black 0px -1px 0px;
+    background: #cccccc;
 }
 
 .passgen .number {
@@ -82,14 +97,60 @@
     vertical-align: middle;
     line-height: 40px;
     font-size: 20px;
-    /*padding: 10px;*/
-    /**/
-    color: white;
-    text-shadow: black 0px -1px 1px;
-    background: silver;
-    user-select: noselect;
 }
 
+.passgen .range-ghost-container {
+    float: left;
+    padding-left: 100%;
+    opcaity: 0;
+    display: block;
+    width: 100%;
+    height: 40px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 40px;
+    font-size: 20px;
+}
+
+.passgen .range-ghost {
+    float: left;
+    display: block;
+    width: 100%;
+    height: 40px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 40px;
+    font-size: 20px;
+    padding: 0px 40px 0px 0px;
+}
+
+.passgen .range {
+    float: left;
+    margin-left: -100%;
+    opacity: 0;
+    display: block;
+    width: 100%;
+    height: 40px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 40px;
+    font-size: 20px;
+}
+
+
+.passgen .knob {
+    float: left;
+    display: block;
+    position: relative;
+    top: 0px;
+    left: 0px;
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 40px;
+    background: #777777;
+}
 
 .passgen .button {
     float: left;
@@ -101,28 +162,24 @@
     line-height: 40px;
     /*padding: 10px;*/
     /**/
-    color: white;
-    text-shadow: black 0px -1px 1px;
-    background: silver;
-    user-select: noselect;
 }
 .passgen .button:active {
-    background: darkgray;
+    background: #444444;
 }
 
 
 .passgen .button.inv {
-    background: silver;
+    background: #cccccc;
 }
 .passgen .button.inv:active {
-    background: darkgray;
+    background: #444444;
 }
 
 .passgen .button.on {
-    background: gray;
+    background: #777777;
 }
 .passgen .button.on:active {
-    background: black;
+    background: #111111;
 }
 
 .passgen .col-4 {
@@ -130,7 +187,10 @@
 }
 
 @media screen and (max-width: 480px) {
+    .passgen textarea {
+        font-size: 16px;
+    }
     .container {
-        padding: 5% 0%;
+        padding: 20px 0%;
     }
 }
