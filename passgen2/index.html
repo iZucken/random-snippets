@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head lang="ru">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>passgen</title>
+    <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css">
+    <link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body>
+<h1>Генератор паролей</h1>
+<div class="container">
+    <div id="passgen-container" class="passgen folded">
+        <div class="row pad-r-80">
+            <textarea id="passgen-text" type="text"></textarea>
+            <div class="float-l mar-r-n-80">
+                <input type="number" value="4" min="4" max="20" id="passgen-count" class="noselect number">
+                <a id="passgen-generate" class="noselect button inv">
+                    <i class="fa fa-refresh"></i>
+                </a>
+            </div>
+        </div>
+        <!--
+        <div class="row">
+            <div id="passgen-slider" class="slider-container">
+                <div id="passgen-count" class="slider">
+                    <input id="passgen-knob" class="knob" type="button" value="4">
+                </div>
+            </div>
+        </div>
+        -->
+        <div class="row">
+            <a id="passgen-lowercase" class="noselect button col-4 on">a-z</a>
+            <a id="passgen-uppercase" class="noselect button col-4">A-Z</a>
+            <a id="passgen-numbers" class="noselect button col-4">0-9</a>
+            <a id="passgen-special" class="noselect button col-4">!</a>
+        </div>
+    </div>
+</div>
+<script src="passgen.js"></script>
+<footer>
+</footer>
+</body>
+</html>
