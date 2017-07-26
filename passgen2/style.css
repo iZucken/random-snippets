@@ -17,7 +17,6 @@
 
 .container {
     widht: 100%;
-    background: silver;
     padding: 5% 20%;
 }
 
@@ -87,7 +86,7 @@
     /**/
     color: white;
     text-shadow: black 0px -1px 1px;
-    background: linear-gradient(gray, white);
+    background: silver;
     user-select: noselect;
 }
 
@@ -104,32 +103,34 @@
     /**/
     color: white;
     text-shadow: black 0px -1px 1px;
-    background: linear-gradient(white, black);
+    background: silver;
     user-select: noselect;
 }
 .passgen .button:active {
-    background: linear-gradient(gray, black);
+    background: darkgray;
 }
 
 
 .passgen .button.inv {
-    background: linear-gradient(gray, white);
+    background: silver;
 }
 .passgen .button.inv:active {
-    background: linear-gradient(gray, black);
+    background: darkgray;
 }
 
 .passgen .button.on {
-    background: linear-gradient(black, white);
+    background: gray;
 }
 .passgen .button.on:active {
-    background: linear-gradient(black, gray);
+    background: black;
 }
 
 .passgen .col-4 {
     width: 25%;
 }
 
-.passgen .col-4:first-of-type {
-    border-radius: ;
+@media screen and (max-width: 480px) {
+    .container {
+        padding: 5% 0%;
+    }
 }
