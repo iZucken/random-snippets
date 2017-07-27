@@ -1,5 +1,4 @@
-
-//(function(){
+(function(){
 	var view = {
 		container: document.getElementById('passgen-container'),
 		text: document.getElementById('passgen-text'),
@@ -9,6 +8,8 @@
 		numbers: document.getElementById('passgen-numbers'),
 		special: document.getElementById('passgen-special'),
 		generate: document.getElementById('passgen-generate'),
+		decrease: document.getElementById('passgen-decrease'),
+		increase: document.getElementById('passgen-increase'),
 		//toclip: document.getElementById('passgen-toclip'),
 		options: document.getElementById('passgen-options'),
 		countGhost: document.getElementById('passgen-count-ghost'),
@@ -53,7 +54,37 @@
 		}
 		generate();
 	};
+	var toggleStyle = function ( element, style ) {
+		var classes = element.className.split(" ");
+		var index = classes.indexOf( style ) + 1;
+		if ( index ) {
+			classes.splice( index - 1, 1 );
+		} else {
+			classes.push( style );
+		}
+		var join = classes.join(" ");
+		element.className = join;
+		console.log(classes, index, join);
+	}
 	var recount = function ( event ) {
+		if ( count != view.count.value ) {
+			count = view.count.value;
+			bakeDictionary();
+			view.countGhost.innerText = count;
+			view.countGhost.style.left = ((count-countMin)/(countMax-countMin))*100 + "%";
+		}
+	};
+	var decrease = function ( event ) {
+		view.count.value--;
+		if ( count != view.count.value ) {
+			count = view.count.value;
+			bakeDictionary();
+			view.countGhost.innerText = count;
+			view.countGhost.style.left = ((count-countMin)/(countMax-countMin))*100 + "%";
+		}
+	};
+	var increase = function ( event ) {
+		view.count.value++;
 		if ( count != view.count.value ) {
 			count = view.count.value;
 			bakeDictionary();
@@ -69,11 +100,13 @@
 		var totalChecks = checks.reduce(function( sum, val ){
 			return sum + val;
 		});
-		target.classList.toggle("on");
+		//target.classList.toggle("on");
+		toggleStyle(target, "on");
 		if ( totalChecks <= 0 ) {
 			target.checked = true;
 			checks[ checksIndexes.indexOf ( target ) ] = true;
-			target.classList.toggle("on");
+			//target.classList.toggle("on");
+			toggleStyle(target, "on");
 		}
 		bakeDictionary();
 	};
@@ -92,9 +125,10 @@
 	};
 	var options = function ( event ) {
 		folded = !folded;
-		view.container.classList.toggle("folded");
+		//view.container.classList.toggle("folded");
+		toggleStyle( view.container, "folded");
 	}
-	//view.count.addEventListener( 'change', recount );
+	view.count.addEventListener( 'change', recount );
 	view.count.addEventListener( 'mousemove', recount );
 	view.count.addEventListener( 'touchmove', recount );
 	view.lowercase.addEventListener( 'click', check );
@@ -104,4 +138,6 @@
 	view.generate.addEventListener( 'click', generate );
 	//view.toclip.addEventListener( 'click', toclip );
 	view.options.addEventListener( 'click', options );
-//})();
+	view.decrease.addEventListener( 'click', decrease );
+	view.increase.addEventListener( 'click', increase );
+})();

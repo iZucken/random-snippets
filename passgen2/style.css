@@ -26,9 +26,12 @@
     transition: all 200ms ease-in-out;
     font-size: 20px;
     overflow: hidden;
-    /*border-radius: 10px;*/
-    border: 1px solid rgba( 40, 50, 60, 0.5 );
+    /*
+    border-radius: 10px;
     background: rgba( 100, 120, 140, 1 );
+    */
+    border: 1px solid rgba( 40, 50, 60, 0.5 );
+    background: #cccccc;
     box-shadow: rgba( 10, 15, 20, 0.5 ) 0px 4px 4px;
 }
 
@@ -37,7 +40,7 @@
 }
 
 .passgen .row {
-    widht: 100%;
+    width: 100%;
     height: 40px;
 }
 .passgen .row:after {
@@ -50,20 +53,33 @@
     float: left;
 }
 
+.passgen .w-100p {
+    width: 100%;
+}
+
+.passgen .pad-l-40 {
+    padding-left: 40px;
+}
+.passgen .mar-l-n-40 {
+    margin-left: -40px;
+}
+
+.passgen .pad-r-40 {
+    padding-right: 40px;
+}
+.passgen .mar-r-n-40 {
+    margin-right: -40px;
+}
+
 .passgen .pad-r-80 {
     padding-right: 80px;
 }
-
 .passgen .mar-r-n-80 {
     margin-right: -80px;
 }
 
-.passgen .pad-r-100p {
-    padding-right: 100%;
-}
-
-.passgen .mar-r-n-100p {
-    margin-right: -100%;
+.passgen .mar-t-n-40 {
+    margin-top: -40px;
 }
 
 .passgen textarea {
@@ -85,7 +101,6 @@
     color: white;
     transition: all 100ms ease-in-out;
     text-shadow: black 0px -1px 0px;
-    background: #cccccc;
 }
 
 .passgen .number {
@@ -99,19 +114,17 @@
     font-size: 20px;
 }
 
-.passgen .range-ghost-container {
+.passgen .range-ghost-line-container {
     float: left;
-    padding-left: 100%;
-    opcaity: 0;
-    display: block;
     width: 100%;
-    height: 40px;
-    text-align: center;
-    vertical-align: middle;
-    line-height: 40px;
-    font-size: 20px;
+    height: 100%;
+    padding: 19px;
 }
-
+.passgen .range-ghost-line {
+    width: 100%;
+    height: 100%;
+    background: white;
+}
 .passgen .range-ghost {
     float: left;
     display: block;
@@ -126,7 +139,6 @@
 
 .passgen .range {
     float: left;
-    margin-left: -100%;
     opacity: 0;
     display: block;
     width: 100%;

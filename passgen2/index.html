@@ -23,20 +23,28 @@
                 </a>
             </div>
         </div>
-        <div class="row pad-r-100per">
-            <div class="noselect input range-ghost mar-r-n-100per">
-                <div id="passgen-count-ghost" class="knob">
-                    4
-                </div>
+        <div class="row pad-l-40 pad-r-40">
+            <div class="float-l mar-l-n-40">
+                <a id="passgen-decrease" class="noselect input button">
+                    -
+                </a>
             </div>
-            <input id="passgen-count" class="noselect input range" type="range" min="4" max="20" step="1" value="4">
-            <!--
-            <div id="passgen-slider" class="slider-container">
-                <div id="passgen-count" class="slider">
-
+            <div class="row float-l">
+                <div class="range-ghost-line-container">
+                    <div class="range-ghost-line"></div>
                 </div>
+                <div class="noselect input range-ghost mar-t-n-40">
+                    <div id="passgen-count-ghost" class="knob">
+                        4
+                    </div>
+                </div>
+                <input id="passgen-count" class="noselect input range mar-t-n-40" type="range" min="4" max="20" step="1" value="4">
             </div>
-            -->
+            <div class="float-l mar-r-n-40">
+                <a id="passgen-increase" class="noselect input button">
+                    +
+                </a>
+            </div>
         </div>
         <div class="row">
             <a id="passgen-lowercase" class="noselect input button col-4 on">a-z</a>
