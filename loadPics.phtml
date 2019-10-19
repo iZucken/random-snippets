@@ -1,0 +1,233 @@
+<?php
+$this->layout( 'pic/layout' );
+?>
+
+<style>
+    .pack_load-que_list-error_detail {
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+        padding-left: 4em;
+    }
+</style>
+
+<input type="hidden" id="uploader_id" value="<?= $user[ 'id' ] ?>">
+<div class="container-fluid">
+    <div class="box-inner">
+        <div class="box-content row">
+            <div class="box col-lg-6">
+                Источники
+                <textarea class="" type="text" id="parse_links" style="font-size:10px;height:200px;width:100%;"></textarea>
+                <div style="width:100%;height: 600px;overflow-y:scroll;">
+                    <div id="parse_echo" style="font-size:10px;width:100%;"></div>
+                </div>
+            </div>
+            <div class="box col-lg-6">
+                Загрузка в категорию:&nbsp;
+                <select id="upload_category" class="">
+                    <option value="0">Не указана</option>
+                    <?php foreach ( $categories as $category ): ?>
+                        <option value="<?= $category[ 'id' ] ?>"><?= $category[ 'ru_title' ] ?></option>
+                    <?php endforeach ?>
+                </select>
+                <textarea class="form-control" type="text" id="upload_links"
+                          style="font-size:10px;height:200px;"></textarea>
+                <div style="width:100%;height: 600px;overflow-y:scroll;">
+                    <div id="upload_echo" style="font-size:10px;width:100%;"></div>
+                </div>
+            </div>
+            <div style="display:none;">
+                <div class="js_queue_item" style="width:100%;border-bottom:1px solid black;"></div>
+                <div class="js_queue_item_done"
+                     style="color:#008800;width:100%;border-bottom:1px solid #004400;"></div>
+                <div class="js_queue_item_fail"
+                     style="color:red;width:100%;border-bottom:1px solid #880000;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var parse = document.getElementById("parse_links");
+    var parse_echo = document.getElementById("parse_echo");
+
+    var upl = document.getElementById("upload_links");
+    var upl_echo = document.getElementById("upload_echo");
+
+    var upload_category = document.getElementById("upload_category");
+    var uploader_id = document.getElementById("uploader_id");
+
+    var shall_parse = true;
+    var last_parse_link = "";
+    var current_parse_link = "";
+
+    var parseInterval = setInterval(function () {
+        if (shall_parse) {
+            var v = parse.value;
+            v = v.split("\n");
+            //v.pop();
+            e = "";
+            while (e == "" && v.length > 0) {
+                e = v.shift();
+            }
+            if (e != "") {
+                shall_parse = false;
+                current_parse_link = e;
+                $.ajax({
+                    type: "POST",
+                    url: "/admin/api/extract",
+                    timeout: 60000,
+                    data: {
+                        remote_link: current_parse_link
+                    },
+                    success: onExtractLinksDone,
+                    error: onExtractLinksFail,
+                    complete: onExtractLinksComplete
+                });
+            }
+            parse.value = v.join("\n") + "\n";
+        }
+    }, 100);
+
+    function onExtractLinksDone(response_data, status, response) {
+        var error = response_data.error || [];
+        var data = response_data.data || [];
+        if (error.length == 0) {
+            if ( data.length == 0 ) {
+                $(parse_echo).prepend($(
+                    "<a class='text-warning'>" + current_parse_link + "</a><br>" +
+                    "<span class='text-warning pack_load-que_list-error_detail'>Получены данные нулевой длинны</span><br>"
+                ));
+            } else {
+                upl.value += "\n" + data.links.join("\n");
+                $(parse_echo).prepend($(
+                    "<a class='text-primary'>" + current_parse_link + "</a><br>"
+                ));
+            }
+        } else {
+            $(parse_echo).prepend($(
+                "<a class='text-danger'>" + current_parse_link + "</a><br>" +
+                "<span class='text-danger pack_load-que_list-error_detail'>"+error.pop()+"</span><br>"
+            ));
+        }
+    }
+
+    function onExtractLinksFail(response, status, exception) {
+        var error = status;
+        try {
+            var json = JSON.parse(response.responseText);
+            error = json.error.pop() || status;
+        } catch ( ex ) {
+            error = "Json parse error";
+        }
+        $(parse_echo).prepend($(
+            "<a class='text-danger'>" + current_parse_link + "</a><br>" +
+            "<span class='text-danger pack_load-que_list-error_detail'>"+error+"</span><br>"
+        ));
+    }
+
+    function onExtractLinksComplete(response, status) {
+        last_parse_link = current_parse_link;
+        shall_parse = true;
+        var json = JSON.parse(response.responseText);
+        if (json.error && json.error.length > 0) {
+            json.error.forEach(function (e) {
+                console.error(e);
+            });
+        }
+        if (json.debug && json.debug.length > 0) {
+            json.debug.forEach(function (e) {
+                console[e.method](e.value, e.style);
+            });
+        }
+    }
+
+    var shall_upl = true;
+    var last_upl_link = "";
+    var current_upl_link = "";
+
+    var uplInterval = setInterval(function () {
+        if (shall_upl) {
+            var v = upl.value;
+            v = v.split("\n");
+            //v.pop();
+            e = "";
+            while (e == "" && v.length > 0) {
+                e = v.shift();
+            }
+            if (e != "") {
+                shall_upl = false;
+                current_upl_link = e;
+                $.ajax({
+                    type: "POST",
+                    url: "/admin/api/upload",
+                    timeout: 60000,
+                    data: {
+                        user_id: uploader_id.value,
+                        category: upload_category.value,
+                        remote_link: current_upl_link
+                    },
+                    success: onUploadDone,
+                    error: onUploadFail,
+                    complete: onUploadComplete
+                });
+
+            }
+            upl.value = v.join("\n") + "\n";
+        }
+    }, 100);
+
+    function onUploadComplete(response, status) {
+        last_upl_link = current_upl_link;
+        shall_upl = true;
+        var json = JSON.parse(response.responseText);
+        if (json.error && json.error.length > 0) {
+            json.error.forEach(function (e) {
+                console.error(e);
+            });
+        }
+        if (json.debug && json.debug.length > 0) {
+            json.debug.forEach(function (e) {
+                console[e.method](e.value, e.style);
+            });
+        }
+    }
+
+    function onUploadDone(response_data, status, response) {
+        var error = response_data.error || [];
+        var data = response_data.data || [];
+        if (error.length == 0) {
+            if ( data.length == 0 ) {
+                $(upl_echo).prepend($(
+                    "<a class='text-warning'>" + current_upl_link + "</a><br>" +
+                    "<span class='text-warning pack_load-que_list-error_detail'>Получены данные нулевой длинны</span><br>"
+                ));
+            } else {
+                $(upl_echo).prepend($(
+                    "<a class='text-primary'>" + current_upl_link + "</a><br>"
+                ));
+            }
+        } else {
+            $(upl_echo).prepend($(
+                "<a class='text-danger'>" + current_upl_link + "</a><br>" +
+                "<span class='text-danger pack_load-que_list-error_detail'>"+error.pop()+"</span><br>"
+            ));
+        }
+    }
+
+    function onUploadFail(response, status, exception) {
+        var error = status;
+        try {
+            var json = JSON.parse(response.responseText);
+            error = json.error.pop() || status;
+        } catch ( ex ) {
+            error = "Json parse error";
+        }
+        $(upl_echo).prepend($(
+            "<a class='text-danger'>" + current_upl_link + "</a><br>" +
+            "<span class='text-danger pack_load-que_list-error_detail'>"+error+"</span><br>"
+        ));
+    }
+</script>

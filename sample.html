@@ -1,0 +1,48 @@
+{{ .characteristics
+<div class="block-heading">{{name}}</div>
+<div class="block blockw">
+    <div class="block-body">
+        <div class="aircraft-table-main">
+            <div class="table-responsive">
+                {{ .sizes
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th colspan="2"><span class="text-uppercase">{{name}}</span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {{ .length
+                    <tr>
+                        <td>{{name}}</td>
+                        <td>{{value}}</td>
+                    </tr>
+                    }}
+                    {{ .width
+                    <tr>
+                        <td>{{name}}</td>
+                        <td>{{value}}</td>
+                    </tr>
+                    }}
+                    {{ .height
+                    <tr>
+                        <td>{{name}}</td>
+                        <td>{{value}}</td>
+                    </tr>
+                    }}
+                    </tbody>
+                </table>
+                }}
+                {{ .capabilities
+                <h1>{{name}}</h1>
+                <ul>
+                    [[
+                    <li>{{name}}: {{value}}</li>
+                    ]]
+                </ul>
+                }}
+            </div>
+        </div>
+    </div>
+</div>
+}}

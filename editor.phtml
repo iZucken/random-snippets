@@ -1,0 +1,634 @@
+<style>
+    @charset "utf-8";
+    #modal-redactor .modal-dialog { width: auto; max-width: 1400px; }
+    #modal-redactor .modal-header { text-align: center; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+    #modal-redactor .modal-body { position: relative; min-height: 500px; }
+    .redactor-navigation { position: absolute; top: 0; left: 0; width: 70px; height: 100%; background-color: #f4f4f4; border-radius: 0 0 0 8px; }
+    .redactor-navigation ul { padding-left: 5px; padding-top: 20px; overflow: hidden; padding-bottom: 5px; }
+    .redactor-navigation li a { display: block; line-height: 70px; border-radius: 3px 0 0 3px; text-align: center; color: #8b8b8b; font-size: 18px; }
+    .redactor-navigation .active a { background-color: #fff; -webkit-box-shadow: 0 1px 4px rgba(0,0,0,.1); box-shadow: 0 1px 4px rgba(0,0,0,.1); color: #555; }
+    .redactor-menu { position: absolute; top: 0; left: 70px; width: 220px; height: 100%; border-right: 1px solid #eee; overflow: auto; }
+    .redactor-menu .tab-content { padding: 20px; }
+    .redactor-sizes-group { position: relative; }
+    .redactor-sizes-group:before { content: "\00d7"; position: absolute; width: 20px; text-align: center; left: 50%; top: 0; line-height: 34px; margin-left: -10px; }
+    .redactor-right { padding-left: 300px; }
+    .redactor-right > .row { line-height:34px; }
+    .filter { background: none; border: none; padding: 5px; display: block; width: 120px; margin: 0 auto 10px; }
+    .filter.active { background: rgba(255,200,0,0.5); }
+    .filter:hover,
+    .filter:focus { color:#1e73c1; -webkit-box-shadow:none; box-shadow:none; }
+    .filter-image { display: block; margin-bottom: 6px; }
+    .filter-image img { border-radius: 3px; }
+    .redactor-zoom { display: inline-block; }
+    .redactor-zoom li > * { margin: 0 5px; vertical-align: middle; }
+    .redactor-btn-zoom { padding: 0; border: none; background: none; display: inline; color: #777; }
+    .redactor-image-body { width: 100%; max-width: 700px; margin-left: auto; margin-right: auto; margin-bottom: 30px; text-align: center; }
+    .redactor-image img { display: block; width: 100%; }
+    .redactor-image { margin-bottom: 20px; margin-top: 20px; overflow:hidden; }
+    .redactor-image-control { width: 100%; max-width: 400px; padding: 0 50px; margin-left: auto; margin-right: auto; height: 30px; padding-top: 4px; }
+    .redactor-zoom-plus, .redactor-zoom-minus { width: 26px; height: 26px; border-radius: 3px; background-color: #d4d4d4; border: none; padding: 0; position: relative; }
+    .redactor-zoom-plus { float: right; margin-right: -50px; }
+    .redactor-zoom-minus { float: left; margin-left: -50px; }
+    .redactor-zoom-plus:before { content: ""; width: 2px; height: 14px; background-color: #fff; position: absolute; top: 50%; left: 50%; margin: -7px 0 0 -1px; }
+    .redactor-zoom-plus:after, .redactor-zoom-minus:after { content: ""; width: 14px; height: 2px; background-color: #fff; position: absolute; top: 50%; left: 50%; margin: -1px 0 0 -7px; }
+    .redactor-zoom-plus:hover, .redactor-zoom-plus:focus, .redactor-zoom-minus:hover, .redactor-zoom-minus:focus { background-color: #488fdb; }
+    .redactor-right .icn-n-redo, .redactor-right .icn-n-redo-back { font-size: 5px; line-height: 5px; vertical-align: middle; color: #777; }
+    .redactor-right .btn { padding-left: 20px; padding-right: 20px; }
+    .redactor-image-control #image_editor-slider { margin-top: 11px; }
+    .filter-greyscale { -webkit-filter: grayscale(100%); filter: grayscale(100%); }
+    .filter-contrast { -webkit-filter: contrast(180%); filter: contrast(180%); }
+    .filter-sepia { -webkit-filter: sepia(100%); filter: sepia(100%); }
+    .filter-retro { filter: sepia(30%) brightness(110%) contrast(130%); }
+    .filter-invert { -webkit-filter: invert(100%); filter: invert(100%); }
+    .filter-brightness { -webkit-filter: brightness(150%); filter: brightness(150%); }
+    #modal-redactor .form-control { padding-left:8px; padding-right:8px; }
+    @media(max-width:767px) {
+        .redactor-navigation { position: relative; height: 75px; width: auto; }
+        .redactor-navigation ul { padding-top: 5px; width: auto; display: block; padding-right: 5px; }
+        .redactor-navigation li { float: left; width: 25%; }
+        .redactor-navigation li a { border-radius: 3px 3px 0 0; }
+        .redactor-navigation .active a { -webkit-box-shadow: none; box-shadow: none; }
+        #modal-redactor .modal-body { padding: 0; }
+        .redactor-menu { position: relative; left: auto; width: auto; border-right: none; border-bottom: 1px solid #eee; -webkit-overflow-scrolling: touch; }
+        .redactor-right { padding: 20px; }
+        .filter { display: inline-block; margin-bottom: 0; }
+        #tab-filter { white-space: nowrap; }
+    }
+</style>
+<style>
+    .crop_knob {
+        position: relative;
+        width: 0px;
+        height: 0px;
+    }
+    .crop_knob:after {
+        content: "";
+        display: block;
+        background: #ffdb08;
+        border-radius: 10px;
+        width: 10px;
+        height: 10px;
+        position: relative;
+        top: -5px;
+        left: -5px;
+    }
+</style>
+<div class="modal fade" id="modal-redactor">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel"><?= $local( "image editor title" ) ?></h4>
+            </div>
+            <div class="modal-body">
+                <div class="redactor-navigation">
+                    <ul class="list-unstyled">
+                        <li class="active">
+                            <a href="#tab-crop" data-toggle="tab"><i class="icn-n-crop"></i></a>
+                        </li>
+                        <li>
+                            <a href="#tab-adjust" data-toggle="tab" data-tab-name="adjust"><i class="icn-n-brigtness"></i></a>
+                        </li>
+                        <li>
+                            <a href="#tab-filter" data-toggle="tab"><i class="icn-n-filter2"></i></a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="redactor-menu">
+                    <div class="tab-content">
+                        <div class="tab-pane fade in active" id="tab-crop">
+                            <form>
+                                <div class="form-group">
+                                    <select id="image_editor-resolution_selector" class="form-control"></select>
+                                </div>
+                                <!--                                    <div class="form-group redactor-sizes-group">-->
+                                <!--                                        <div class="row">-->
+                                <!--                                            <div class="col-xs-6">-->
+                                <!--                                                <input id="manual_width" type="number" class="form-control" value="1" min="1" max="9999">-->
+                                <!--                                            </div>-->
+                                <!--                                            <div class="col-xs-6">-->
+                                <!--                                                <input id="manual_height" type="number" class="form-control" value="1" min="1" max="9999">-->
+                                <!--                                            </div>-->
+                                <!--                                        </div>-->
+                                <!--                                    </div>-->
+                                <!--                                    <div class="form-group">-->
+                                <!--                                        <div class="checkbox-new">-->
+                                <!--                                            <input checked="checked" id="mailnews_check" type="checkbox">-->
+                                <!--                                            <label for="mailnews_check">Сохранить пропорции</label>-->
+                                <!--                                        </div>-->
+                                <!--                                    </div>-->
+                                <div class="text-center">
+                                    <button id="image_editor-cut_start" type="button" class="btn btn-primary"><?= $local( "image editor crop" ) ?></button>
+                                </div>
+                                <div id="image_editor-crop_menu" style="display: none;" class="form-group">
+                                    <div class="row">
+                                        <div class="col-xs-6">
+                                            X: <input type="number" id="image_editor-cut_from_x" class="form-control">
+                                        </div>
+                                        <div class="col-xs-6">
+                                            Y: <input type="number" id="image_editor-cut_from_y" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xs-6">
+                                            W: <input type="number" id="image_editor-cut_width" class="form-control">
+                                        </div>
+                                        <div class="col-xs-6">
+                                            H: <input type="number" id="image_editor-cut_height" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xs-6">
+                                            ширина
+                                        </div>
+                                        <div class="col-xs-6">
+                                            высота
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-xs-6">
+                                            <span id="image_editor-resulting_width" class="form-control"></span>
+                                        </div>
+                                        <div class="col-xs-6">
+                                            <span id="image_editor-resulting_height" class="form-control"></span>
+                                        </div>
+                                    </div>
+                                    <button id="image_editor-cut_discard" type="button" class="btn btn-primary"><?= $local( "image editor discard" ) ?></button>
+                                    <button id="image_editor-cut_apply" type="button" class="btn btn-primary"><?= $local( "image editor apply" ) ?></button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="tab-pane fade" id="tab-adjust">
+                            <button type="button" class="filter" data-img-edit-adjust="brightness">
+                                <span class="filter-image"><img src="" class="filter-brightness" alt=""></span> <?= $local( "image editor filter brightness" ) ?>
+                            </button>
+                            <button type="button" class="filter" data-img-edit-adjust="saturation">
+                                <span class="filter-image"><img src="" class="filter-saturation" alt=""></span> <?= $local( "image editor filter saturation" ) ?>
+                            </button>
+                            <button type="button" class="filter" data-img-edit-adjust="gamma">
+                                <span class="filter-image"><img src="" class="filter-brightness" alt=""></span> <?= $local( "image editor filter gamma" ) ?>
+                            </button>
+                            <button type="button" class="filter" data-img-edit-adjust="hue">
+                                <span class="filter-image"><img src="" class="filter-hue" alt=""></span> <?= $local( "image editor filter hue" ) ?>
+                            </button>
+                        </div>
+                        <div class="tab-pane fade" id="tab-filter">
+                            <button type="button" class="filter" data-img-edit-filter="sepia">
+                                <span class="filter-image"><img src="" class="filter-sepia" alt=""></span> <?= $local( "image editor filter sepia" ) ?>
+                            </button>
+                            <button type="button" class="filter" data-img-edit-filter="retro">
+                                <span class="filter-image"><img src="" class="filter-retro" alt=""></span> <?= $local( "image editor filter grunge" ) ?>
+                            </button>
+                            <button type="button" class="filter" data-img-edit-filter="hdr">
+                                <span class="filter-image"><img src="" class="filter-contrast" alt=""></span> <?= $local( "image editor filter hdr" ) ?>
+                            </button>
+                            <button type="button" class="filter" data-img-edit-filter="invert">
+                                <span class="filter-image"><img src="" class="filter-invert" alt=""></span> <?= $local( "image editor filter inversion" ) ?>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="redactor-right">
+                    <div class="form-group text-right">
+                        <a id="image_editor-download_link" href="javascript:;" class="btn btn-main">
+                            <i class="icn-n-download icn-left"></i> <?= $local( "image editor download" ) ?>
+                        </a>
+                    </div>
+                    <div class="redactor-image-body">
+                        <div class="redactor-image" style="position: relative">
+                            <canvas style="width:100%;display: block;" id="editor_image"></canvas>
+                            <div style="position: absolute;width:100%;height:100%;top:0%;left:0%;display:none;">
+                                <div id="image_editor-crop_border" style="width:100%;height:100%;border:1px dashed #ffdb08;">
+                                    <div data-img-edit-crop="top,left" style="top:0%;left:0%;" class="crop_knob"></div>
+                                    <div data-img-edit-crop="bottom,right" style="top:100%;left:100%;" class="crop_knob"></div>
+                                    <div data-img-edit-crop="bottom,left" style="top:100%;left:0%;" class="crop_knob"></div>
+                                    <div data-img-edit-crop="top,right" style="top:0%;left:100%;" class="crop_knob"></div>
+                                    <div data-img-edit-crop="left" style="top:50%;left:0%;" class="crop_knob"></div>
+                                    <div data-img-edit-crop="top" style="top:0%;left:50%;" class="crop_knob"></div>
+                                    <div data-img-edit-crop="right" style="top:50%;left:100%;" class="crop_knob"></div>
+                                    <div data-img-edit-crop="bottom" style="top:100%;left:50%;" class="crop_knob"></div>
+                                </div>
+                            </div>
+                            <div id="image_editor-load_indicator" style="position: absolute;top: 50%;left: 50%;display:none;">
+                                <img src="/v3/images/spacer.png" style="width: 40px;position: relative;top: -20px;left: -20px;">
+                            </div>
+                        </div>
+                        <div style="display:none;" id="image_editor-slider-container" class="redactor-image-control">
+                            <button id="image_editor-slider-minus" class="redactor-zoom-minus"></button>
+                            <button id="image_editor-slider-plus" class="redactor-zoom-plus"></button>
+                            <div id="image_editor-slider"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <!--                                    <ul class="list-inline redactor-zoom">-->
+                                <!--                                        <li>-->
+                                <!--                                            <button type="button" class="redactor-btn-zoom">-->
+                                <!--                                                <i class="icn-n-zoom-minus"></i>-->
+                                <!--                                            </button>-->
+                                <!--                                            <span>100%</span>-->
+                                <!--                                            <button type="button" class="redactor-btn-zoom">-->
+                                <!--                                                <i class="icn-n-zoom-plus"></i>-->
+                                <!--                                            </button>-->
+                                <!--                                        </li>-->
+                                <!--                                        <li>1920x1200</li>-->
+                                <!--                                    </ul>-->
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group text-right">
+                                <button id="image_editor-btn-undo" type="button" class="btn btn-muted"><?= $local( "image editor undo" ) ?></button>
+                                <button id="image_editor-btn-redo" type="button" class="btn btn-muted"><?= $local( "image editor redo" ) ?></button>
+                                <button id="image_editor-btn-reset" type="button" class="btn btn-muted"><?= $local( "image editor reset" ) ?></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>function MakeImageEditor ( pic, valid_resolutions ) {
+        Convert = (function () {
+            function Convert() {}
+            Convert.rgbToHSV = function (r, g, b) {
+                var d,
+                    h,
+                    max,
+                    min,
+                    s,
+                    v;
+                r /= 255;
+                g /= 255;
+                b /= 255;
+                max = Math.max(r, g, b);
+                min = Math.min(r, g, b);
+                v = max;
+                d = max - min;
+                s = max === 0 ? 0 : d / max;
+                if (max === min) {
+                    h = 0;
+                } else {
+                    h = (function () {
+                        switch (max) {
+                            case r:
+                                return (g - b) / d + (g < b ? 6 : 0);
+                            case g:
+                                return (b - r) / d + 2;
+                            case b:
+                                return (r - g) / d + 4;
+                        }
+                    })();
+                    h /= 6;
+                }
+                return {
+                    h: h,
+                    s: s,
+                    v: v
+                };
+            };
+            Convert.hsvToRGB = function (h, s, v) {
+                var b,
+                    f,
+                    g,
+                    i,
+                    p,
+                    q,
+                    r,
+                    t;
+                i = Math.floor(h * 6);
+                f = h * 6 - i;
+                p = v * (1 - s);
+                q = v * (1 - f * s);
+                t = v * (1 - (1 - f) * s);
+                switch (i % 6) {
+                    case 0:
+                        r = v;
+                        g = t;
+                        b = p;
+                        break;
+                    case 1:
+                        r = q;
+                        g = v;
+                        b = p;
+                        break;
+                    case 2:
+                        r = p;
+                        g = v;
+                        b = t;
+                        break;
+                    case 3:
+                        r = p;
+                        g = q;
+                        b = v;
+                        break;
+                    case 4:
+                        r = t;
+                        g = p;
+                        b = v;
+                        break;
+                    case 5:
+                        r = v;
+                        g = p;
+                        b = q;
+                }
+                return {
+                    r: r * 255,
+                    g: g * 255,
+                    b: b * 255
+                };
+            };
+            return Convert;
+        })();
+        Caman.Filter.register("HDR", function () {
+            this.newLayer(function () {
+                this.setBlendingMode("softLight");
+                this.copyParent();
+                this.filter.greyscale();
+                this.filter.invert();
+                this.filter.stackBlur(10);
+                return this;
+            });
+            return this;
+        });
+        Caman.Filter.register("adjustments", function (gamma, brightness, saturation, hue) {
+            // brightness = Math.floor(255 * (brightness / 100));
+            // saturation *= -0.01;
+            brightness /= 100;
+            saturation /= 100;
+            gamma = gamma / 100 + 1;
+            hue = (hue / 100 * 180 + (hue < 0 ? 360 : 0)) / 360;
+            return this.process("adjustments", function (rgba) {
+                // brightness
+                // r += brightness;
+                // g += brightness;
+                // b += brightness;
+                // gamma
+                // r = Math.pow(r / 255, gamma) * 255;
+                // g = Math.pow(g / 255, gamma) * 255;
+                // b = Math.pow(b / 255, gamma) * 255;
+                // hue shift
+                var hsv = Convert.rgbToHSV(rgba.r, rgba.g, rgba.b);
+                hsv.h += hue;
+                hsv.v = Math.pow(hsv.v, gamma);
+                /*
+                if (brightness < 0) {
+                    hsv.v = hsv.v + brightness * (1 - hsv.v);
+                } else {
+                    hsv.v = hsv.v + brightness * (hsv.v);
+                }
+                */
+                hsv.v = hsv.v + brightness;
+
+                hsv.s = hsv.s + saturation * hsv.s;
+                hsv.v = Math.max(Math.min(hsv.v, 1), 0);
+                hsv.s = Math.max(Math.min(hsv.s, 1), 0);
+                return Convert.hsvToRGB(hsv.h, hsv.s, hsv.v);
+            });
+        });
+        Caman.Filter.register("callbackHelper", function () {
+            return this.process("callbackHelper", function (rgba) {
+                return rgba;
+            });
+        });
+        var slider = $("#image_editor-slider").slider({
+            min: -100,
+            max: 100,
+            value: 0,
+            range: "min",
+            change: function (event, ui) {
+                if (event.originalEvent || slider_forced) {
+                    slider_forced = false;
+                    state.adjust[slider_adjust] = ui.value;
+                    pushState();
+                    redrawCanvas(image);
+                }
+            }
+        });
+        var load_indicator = $('#image_editor-load_indicator');
+        var slider_container = $("#image_editor-slider-container");
+        var resolution_selector = $('#image_editor-resolution_selector');
+        var caman = Caman("#editor_image");
+        var slider_adjust = null;
+        var slider_forced = false;
+        var processing = true;
+        var cropping = false;
+        var state_stack = [];
+        var state_step = 0;
+        var state = {
+            adjust: {
+                brightness: 0,
+                hue: 0,
+                saturation: 0,
+                gamma: 0
+            },
+            filter: {
+                sepia: false,
+                retro: false,
+                hdr: false,
+                invert: false
+            },
+            // dimensions: {
+            //     width: 0,
+            //     height: 0
+            // },
+            dimensions: [0, 0],
+            crop: {
+                do_crop: false,
+                x: 0,
+                y: 0,
+                width: 0,
+                height: 0
+            }
+        };
+        var canvas = $('#editor_image')[0];
+        var context = canvas.getContext('2d');
+        var image = null;
+
+        $('#image_editor-cut_start').click(function (e) {
+            cropping = true;
+            $('#image_editor-cut_start').hide();
+            crop_menu.show();
+            crop_border.show();
+        });
+        $('#image_editor-cut_apply').click(function (e) {
+            cropping = false;
+            $('#image_editor-cut_start').hide();
+            pushState();
+            crop_menu.hide();
+            crop_border.hide();
+        });
+        $('#image_editor-cut_discard').click(function (e) {
+            cropping = false;
+            $('#image_editor-cut_start').hide();
+            crop_menu.hide();
+            crop_border.hide();
+        });
+
+        var crop_border = $('#image_editor-crop_border');
+        var crop_menu = $('#image_editor-crop_menu');
+
+        $("*[data-toggle=tab]").click(function (e) {
+            if ($(e.currentTarget).data('tab-name') == "adjust") {
+                slider_container.show();
+            } else {
+                slider_container.hide();
+            }
+        });
+        $("#image_editor-slider-minus").click(function (e) {
+            slider_forced = true;
+            slider.slider('value', slider.slider('value') - 10);
+        });
+        $("#image_editor-slider-plus").click(function (e) {
+            slider_forced = true;
+            slider.slider('value', slider.slider('value') + 10);
+        });
+        $("*[data-img-edit-adjust]").click(function (e) {
+            slider_adjust = $(e.target).data('img-edit-adjust');
+            slider.slider('value', state.adjust[slider_adjust]);
+        });
+        $("*[data-img-edit-adjust]").first().click();
+        $("*[data-img-edit-filter]").click(function (e) {
+            var target = $(e.target);
+            var name = target.data('img-edit-filter');
+            state.filter[name] = !state.filter[name];
+            target.toggleClass('active', state.filter[name]);
+            pushState();
+            redrawCanvas(image);
+        });
+        $('#image_editor-resolution_selector').change(function (e) {
+            var _tmp_res = e.target.value.split("x");
+            state.dimensions[0] = _tmp_res[0];
+            state.dimensions[1] = _tmp_res[1];
+            pushState();
+            reloadSource(AKS.pic_gen_size_link(pic, e.target.value));
+        });
+        document.getElementById('image_editor-download_link').addEventListener('click', function (e) {
+            this.href = canvas.toDataURL('image/jpeg');
+            this.download = pic.id + '-' + state.dimensions.join("x") + '.jpg';
+        }, false);
+        $("#image_editor-btn-undo").click(function (e) {
+            popState();
+        });
+        $("#image_editor-btn-redo").click(function (e) {
+            revertState();
+        });
+        $("#image_editor-btn-reset").click(function (e) {
+            resetState();
+        });
+        function updateControlsByState() {
+            $("*[data-img-edit-filter]").each(function (i) {
+                var target = $(this);
+                var name = target.data('img-edit-filter');
+                target.toggleClass('active', state.filter[name]);
+            });
+        }
+        function pushState() {
+            if (state_step != state_stack.length) {
+                state_stack = state_stack.slice(0, state_step);
+            }
+            state_stack.push(JSON.parse(JSON.stringify(state)));
+            state_step++;
+            console.log(state_step, state_stack);
+        }
+        function popState() {
+            if (state_step > 1) {
+                state_step--;
+                state = JSON.parse(JSON.stringify(state_stack[state_step - 1]));
+                console.log(state_step, state_stack);
+                updateControlsByState();
+                redrawCanvas(image);
+            }
+        }
+        function revertState() {
+            if (state_step < state_stack.length) {
+                state_step++;
+                state = JSON.parse(JSON.stringify(state_stack[state_step - 1]));
+                console.log(state_step, state_stack);
+                updateControlsByState();
+                redrawCanvas(image);
+            }
+        }
+        function resetState() {
+            state_step = 1;
+            state_stack = [ state_stack[0] ];
+            console.log(state_step, state_stack);
+            state = JSON.parse(JSON.stringify(state_stack[state_step - 1]));
+            updateControlsByState();
+            redrawCanvas(image);
+        }
+        function reloadSource(new_url) {
+            processing = true;
+            load_indicator.show();
+            var new_image = new Image();
+            new_image.crossOrigin = "Anonymous";
+            new_image.onload = function () {
+                console.log("loaded");
+                redrawCanvas(new_image);
+            };
+            new_image.src = new_url;
+            return new_image
+        }
+        function redrawCanvas(image) {
+            processing = true;
+            load_indicator.show();
+            canvas.width = image.width;
+            canvas.height = image.height;
+            context.drawImage(image, 0, 0);
+            redrawFilters();
+        }
+        function redrawFilters() {
+            Caman("#editor_image", function () {
+                this.reloadCanvasData();
+                if (state.crop.do_crop) {
+                    this.crop( state.crop.width, state.crop.height, state.crop.x, state.crop.y );
+                }
+                this.adjustments(
+                    state.adjust.gamma,
+                    state.adjust.brightness,
+                    state.adjust.saturation,
+                    state.adjust.hue
+                );
+                if (state.filter.sepia) {
+                    this.vintage();
+                }
+                if (state.filter.retro) {
+                    this.sinCity();
+                }
+                if (state.filter.hdr) {
+                    this.HDR();
+                }
+                if (state.filter.invert) {
+                    this.invert();
+                }
+                this.callbackHelper();
+                this.render();
+            });
+        }
+        Caman.Event.listen(caman, "processComplete", function (job) {
+            console.log("Finished:", job.name);
+            if ( job.name == "callbackHelper" ) {
+                processing = false;
+                load_indicator.hide();
+            }
+        });
+        for ( var resolution in valid_resolutions ) {
+            if ( valid_resolutions.hasOwnProperty( resolution ) ) {
+                resolution_selector.append("<option value='"+valid_resolutions[resolution].resolution+"'>"+valid_resolutions[resolution].resolution+"</option>");
+            }
+        }
+        if ( !pic.is_resolution_standard ) {
+            resolution_selector.append("<option value='"+pic.resolution+"'>"+pic.resolution+"</option>");
+        }
+        state.dimensions[0] = pic.width;
+        state.dimensions[1] = pic.height;
+        resolution_selector[0].value = state.dimensions.join("x");
+        pushState();
+        setTimeout(function(){
+            image = reloadSource(AKS.pic_gen_size_link(pic, state.dimensions.join("x")));
+        },1);
+    }
+</script>
