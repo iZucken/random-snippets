@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .it-com-new-year-outer {
+            position: absolute;right:6em;bottom: 2em;perspective: 40px;
+        }
+        .it-com-new-year-inner {
+            display: block;
+            width:120px;
+            text-align: center;
+            background:white;
+            font-weight:bold;
+            color:#6441a4;
+            padding: 0.5em;
+            border: solid 2px #6441a4;
+            transform: rotate3d(1,-1,1,5deg) translateZ(0px);
+            transition: all 0.25s ease-in-out;
+            box-shadow: 5px 5px #6441a4;
+        }
+        .it-com-new-year-inner:hover {
+            transform: rotate3d(1,-1,1,5deg) translate3d(-5px,-5px,0px);
+            box-shadow: 10px 10px #6441a4;
+        }
+    </style>
+</head>
+<body>
+    <div class="it-com-new-year-outer">
+        <a class="it-com-new-year-inner" href="https://www.twitch.tv/itk2020" target="_blank">
+            Радио IT-COM <img style="width:1em;height:1em;" src="https://assets.help.twitch.tv/Glitch_Purple_RGB.png">
+        </a>
+    </div>
+</body>
+</html>
