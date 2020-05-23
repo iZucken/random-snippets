@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head lang="ru">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>passgen</title>
+    <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css">
+    <link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body>
+<h1>Генератор паролей</h1>
+<div class="container">
+    <div id="passgen-container" class="passgen folded">
+        <div class="row pad-r-80">
+            <textarea id="passgen-text" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+            <div class="float-l mar-r-n-80">
+                <!--<input type="number" value="4" min="4" max="20" id="passgen-count" class="noselect input number">-->
+                <a id="passgen-generate" class="noselect input button inv">
+                    <i class="fa fa-refresh"></i>
+                </a>
+                <a id="passgen-options" class="noselect input button inv">
+                    <i class="fa fa-cog"></i>
+                </a>
+            </div>
+        </div>
+        <div class="row pad-l-40 pad-r-40">
+            <div class="float-l mar-l-n-40">
+                <a id="passgen-decrease" class="noselect input button">
+                    -
+                </a>
+            </div>
+            <div class="row float-l">
+                <div class="range-ghost-line-container">
+                    <div class="range-ghost-line"></div>
+                </div>
+                <div class="noselect input range-ghost mar-t-n-40">
+                    <div id="passgen-count-ghost" class="knob">
+                        4
+                    </div>
+                </div>
+                <input id="passgen-count" class="noselect input range mar-t-n-40" type="range" min="4" max="20" step="1" value="4">
+            </div>
+            <div class="float-l mar-r-n-40">
+                <a id="passgen-increase" class="noselect input button">
+                    +
+                </a>
+            </div>
+        </div>
+        <div class="row">
+            <a id="passgen-lowercase" class="noselect input button col-4 on">a-z</a>
+            <a id="passgen-uppercase" class="noselect input button col-4">A-Z</a>
+            <a id="passgen-numbers" class="noselect input button col-4">0-9</a>
+            <a id="passgen-special" class="noselect input button col-4">!</a>
+        </div>
+    </div>
+</div>
+<script src="passgen.js"></script>
+<footer>
+</footer>
+</body>
+</html>
