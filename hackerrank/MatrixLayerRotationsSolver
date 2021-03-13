@@ -1,0 +1,153 @@
+/**
+ * In this linear solution each resulting cell is logically mapped from the input.
+ * At first I believed I could achieve pure arithmetic mapping but failed miserably.
+ */
+class MatrixLayerRotationsSolver {
+    private $matrix;
+    private $h0;
+    private $w0;
+    private $dimensions = [];
+
+    function __construct ($matrix) {
+        $this->matrix = $matrix;
+        $this->h0 = count($matrix) - 1;
+        $this->w0 = count($matrix[0]) - 1;
+    }
+    
+    /**
+     * Fill resulting matrix with remapped cell values...
+     */
+    function solveForLayerRotations ($rotations) {
+        $solution = [];
+        for ($x = 0; $x <= $this->h0; $x++) {
+            for ($y = 0; $y <= $this->w0; $y++) {
+                $solution[$x][$y] = $this->mapByLayerRotations($x, $y, $rotations);
+            }
+        }
+        return $solution;
+    }
+
+    /**
+     * Cell layer calculation like in some of the other solutions:
+     *
+     * 0 0 0 0
+     * 0 1 1 0
+     * 0 1 1 0
+     * 0 0 0 0
+     * 
+     */
+    function layer ($x,$y) {
+        return min(
+            min($x,$y),
+            abs(min($this->h0 - $x, $this->w0 - $y))
+        );
+    }
+    
+    /**
+     * Calculates width, height and perimeter lenght of a layer.
+     * Lenghts look like this:
+     *
+     * 8 8 8 8
+     * 8 4 4 8
+     * 8 4 4 8
+     * 8 8 8 8
+     * 
+     */
+    function layerDimensions ($layer) {
+        if (isset($this->dimensions[$layer])) {
+            return $this->dimensions[$layer];
+        }
+        $w = $this->w0 - $layer * 2;
+        $h = $this->h0 - $layer * 2;
+        return $this->dimensions[$layer] = [$w, $h, $w * 2 + $h * 2];
+    }
+
+    /**
+     * Returns the value of a cell remapped by rotation
+     */
+    function mapByLayerRotations ($x, $y, $rotations) {
+        [$x, $y] = $this->fromOffset(
+            $this->rotateOffset(
+                $this->offset($x, $y),
+                $rotations
+            )
+        );
+        return $this->matrix[$x][$y];
+    }
+
+    /**
+     * Transforms cell coordinates to an offset on a layer perimeter:
+     * 
+     * 0 1 2
+     * 7   3
+     * 6 5 4
+     *
+     */
+    function offset ($x, $y) {
+        $layer = $this->layer($x, $y);
+        [$w, $h, $perimeter] = $this->layerDimensions($layer);
+        // Transforms cell into 'local' layer space
+        $x0 = $x - $layer;
+        $y0 = $y - $layer;
+        $offset = $x0 + $y0;
+        /**
+         * By itslef ($x0 + $y0) would yield a matrix like this:
+         *
+         * 0 1 2
+         * 1   3
+         * 2 3 4
+         *
+         * The lower left part of the perimeter is "inverted" by this condition:
+         *
+         * 0 1 2
+         * X   3
+         * X X 4
+         *
+         */
+        if ($x0 > 0 && $y0 < $w ) {
+            $offset = $perimeter - $offset;
+        }
+        return [$layer, $offset];
+    }
+
+    /**
+     * Transforms layer offset to a new value by clamping with a perimeter length
+     */
+    function rotateOffset ($layerOffset, $rotations) {
+        [$layer, $offset] = $layerOffset;
+        [$w, $h, $perimeter] = $this->layerDimensions($layer);
+        return [
+            $layer,
+            ($offset + $rotations) % $perimeter
+        ];
+    }
+
+    /**
+     * Basically derives cell from offset with different condition
+     * for each 'sector' of the perimeter:
+     *
+     * 1 1 1 2
+     * 4     2
+     * 4     2
+     * 4 3 3 3
+     * 
+     */
+    function fromOffset ($layerOffset) {
+        [$layer, $offset] = $layerOffset;
+        [$w, $h, $perimeter] = $this->layerDimensions($layer);
+        if ($offset < $w) { // 1
+            $x = 0;
+            $y = $offset;
+        } elseif ($offset < $w + $h) { // 2
+            $x = $offset - $w;
+            $y = $w;
+        } elseif ($offset < $perimeter - $h)  { // 3
+            $x = $h;
+            $y = $perimeter - $h - $offset;
+        } else { // 4
+            $x = $perimeter - $offset;
+            $y = 0;
+        }
+        return [$x + $layer, $y + $layer];
+    }
+}
